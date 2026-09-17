@@ -13,6 +13,8 @@ This project compresses **23 correlated customer behavioral metrics** into ortho
 
 Rather than treating PCA as a black-box dimensionality reduction step, this project demonstrates how PCA eliminates feature correlation and enhances cluster separability—achieving a **+19.50% improvement in Silhouette Score** over clustering on raw features alone.
 
+![Executive Persona Dashboard](outputs/persona_dashboard.png)
+
 ---
 
 ## 🎯 Business Problem & Context
@@ -104,9 +106,6 @@ The absolute Silhouette Scores (~0.175) fall into the range typical for complex,
 
 ## 👥 The 5 Discovered Customer Personas
 
-![2D Persona Scatter Plot](outputs/pca_pc1_vs_pc2_persona_scatter.png)
-![Persona Size Bar Chart](outputs/persona_size_distribution.png)
-
 ### 📈 Summary Table & Business Recommendations
 
 | Persona Name | Customer Count | % of Total | Avg CLV (Spend) | Avg Frequency | Avg Recency | Defining Behavioral Traits | Tailored Business Recommendation |
@@ -136,13 +135,15 @@ D:\Ssshhhh\Projexts\Customers Discovery\
 │   ├── clustered_customer_features.csv  # Final customer features with assigned persona labels
 │   ├── pca_pc1_vs_pc2_persona_scatter.png# 2D PC1 vs PC2 persona scatter visualization
 │   ├── persona_size_distribution.png   # Persona size distribution bar chart
-│   └── persona_summary_table.csv        # Executive summary table with recommendations
+│   ├── persona_summary_table.csv        # Executive summary table with recommendations
+│   └── persona_dashboard.png            # Combined executive summary dashboard visual
 ├── src/
 │   ├── 01_feature_engineering.py        # Feature aggregation & log transformation pipeline
 │   ├── 02_preprocessing.py              # Correlation heatmap & StandardScaler execution
 │   ├── 03_pca_analysis.py               # PCA fitting, scree plot, & loading interpretations
 │   ├── 04_clustering.py                 # KMeans evaluation (11 PCs vs Raw) & silhouette scoring
-│   └── 05_persona_visualization.py      # Scatter plot, bar chart, & summary table exports
+│   ├── 05_persona_visualization.py      # Scatter plot, bar chart, & summary table exports
+│   └── 06_persona_dashboard.py          # Composite visual dashboard generator
 ├── notebooks/
 │   └── 01_customer_persona_pca_clustering.ipynb # End-to-end interactive Jupyter notebook
 └── README.md                            # Complete technical & business write-up
