@@ -13,6 +13,8 @@ This project compresses **23 correlated customer behavioral metrics** into ortho
 
 Rather than treating PCA as a black-box dimensionality reduction step, this project demonstrates how PCA eliminates feature correlation and enhances cluster separability—achieving a **+19.50% improvement in Silhouette Score** over clustering on raw features alone.
 
+![Executive Persona Dashboard](outputs/persona_dashboard.png)
+
 ---
 
 ## 🎯 Business Problem & Context
@@ -104,9 +106,6 @@ The absolute Silhouette Scores (~0.175) fall into the range typical for complex,
 
 ## 👥 The 5 Discovered Customer Personas
 
-![2D Persona Scatter Plot](outputs/pca_pc1_vs_pc2_persona_scatter.png)
-![Persona Size Bar Chart](outputs/persona_size_distribution.png)
-
 ### 📈 Summary Table & Business Recommendations
 
 | Persona Name | Customer Count | % of Total | Avg CLV (Spend) | Avg Frequency | Avg Recency | Defining Behavioral Traits | Tailored Business Recommendation |
@@ -136,13 +135,15 @@ D:\Ssshhhh\Projexts\Customers Discovery\
 │   ├── clustered_customer_features.csv  # Final customer features with assigned persona labels
 │   ├── pca_pc1_vs_pc2_persona_scatter.png# 2D PC1 vs PC2 persona scatter visualization
 │   ├── persona_size_distribution.png   # Persona size distribution bar chart
-│   └── persona_summary_table.csv        # Executive summary table with recommendations
+│   ├── persona_summary_table.csv        # Executive summary table with recommendations
+│   └── persona_dashboard.png            # Combined executive summary dashboard visual
 ├── src/
 │   ├── 01_feature_engineering.py        # Feature aggregation & log transformation pipeline
 │   ├── 02_preprocessing.py              # Correlation heatmap & StandardScaler execution
 │   ├── 03_pca_analysis.py               # PCA fitting, scree plot, & loading interpretations
 │   ├── 04_clustering.py                 # KMeans evaluation (11 PCs vs Raw) & silhouette scoring
-│   └── 05_persona_visualization.py      # Scatter plot, bar chart, & summary table exports
+│   ├── 05_persona_visualization.py      # Scatter plot, bar chart, & summary table exports
+│   └── 06_persona_dashboard.py          # Composite visual dashboard generator
 ├── notebooks/
 │   └── 01_customer_persona_pca_clustering.ipynb # End-to-end interactive Jupyter notebook
 └── README.md                            # Complete technical & business write-up
@@ -153,8 +154,8 @@ D:\Ssshhhh\Projexts\Customers Discovery\
 ## 💼 Resume Bullet Points
 
 ```markdown
-Customer Persona Discovery via PCA & KMeans | Self Project
-• Engineered 23 behavioral features across 18,497 customers; used PCA to compress correlated signals into 11 components capturing 83.3% of variance, reducing dimensionality by 52% (23→11)
+Customer Persona Discovery via PCA & Clustering | Self Project [Mar'26]
+• Engineered 23 behavioral features across 18,497 customers; used PCA to compress correlated signals into 11 components capturing 83.3% of variance, reducing dimensionality by 52%
 • Benchmarked KMeans on PCA-reduced vs. raw feature space, achieving +19.5% silhouette-score improvement (0.175 vs 0.147) at k=5
-• Segmented customers into 5 actionable personas (Loyal High-Spenders, High-Ticket Tech Enthusiasts, Festive Basket Builders, Everyday Low-Ticket Discount Hunters, At-Risk COD Buyers) with tailored retention/promo strategies
+• Segmented customers into 5 actionable personas (Loyal High-Spenders, High-Ticket Tech Enthusiasts, Festive Basket Builders, Everyday Low-Ticket Discount Hunters, At-Risk COD Buyers), translating each into targeted retention/promotion strategies
 ```
