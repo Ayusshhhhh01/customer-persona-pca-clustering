@@ -11,7 +11,7 @@
 
 This project compresses **23 correlated customer behavioral metrics** into orthogonal principal components using **Principal Component Analysis (PCA)**, then applies **KMeans Clustering** to segment 18,497 delivered e-commerce customers into **5 actionable, business-named customer personas**.
 
-Rather than treating PCA as a black-box dimensionality reduction step, this project demonstrates how PCA eliminates feature correlation and enhances cluster separability—achieving a **+19.50% improvement in Silhouette Score** over clustering on raw features alone.
+Rather than treating PCA as a black-box dimensionality reduction step, this project demonstrates how PCA eliminates feature correlation while preserving cluster separability—achieving a **statistically equivalent Silhouette Score (0.1431 vs 0.1466 evaluated in the same 23D feature space)** while reducing feature dimensionality by **52% (23 → 11 principal components)**.
 
 ![Executive Persona Dashboard](outputs/persona_dashboard.png)
 
@@ -25,7 +25,7 @@ Generic RFM (Recency, Frequency, Monetary) rules miss critical behavioral nuance
 
 ### Core Objectives:
 1. **Reduce Multicollinearity**: Compress 23 overlapping behavioral metrics into a lower-dimensional orthogonal space.
-2. **Quantify PCA Value**: Prove that clustering on PCA-reduced components yields cleaner, more separable clusters than raw data.
+2. **Quantify PCA Efficiency**: Prove that clustering on 11 PCA components retains ~97.7% of cluster separability (0.1431 vs 0.1466) while reducing dimensionality by 52%.
 3. **Build Actionable Personas**: Translate mathematical clusters into 5 named customer personas with tailored business growth strategies.
 
 ---
@@ -65,7 +65,7 @@ Extracted customer-level signals from transaction tables (`orders`, `order_items
 
 ![PCA Scree Plot](outputs/pca_scree_plot.png)
 
-### Variance Explained Breakdown:
+### Variance Decomposition:
 * **Top 3 Components**: Capture **39.27%** cumulative variance.
 * **11 Components (Selected for Clustering Basis)**: Capture **83.34%** cumulative variance (52% dimensionality reduction: 23 → 11 dimensions).
 * **13 Components**: Capture **90.45%** cumulative variance.
@@ -88,19 +88,21 @@ Extracted customer-level signals from transaction tables (`orders`, `order_items
 
 ![Elbow & Silhouette Comparison](outputs/cluster_evaluation_elbow_silhouette.png)
 
-| Cluster Count ($k$) | Raw 23-Feature Silhouette Score | 11-PC Reduced Silhouette Score | Separability Improvement (%) |
-|---|---|---|---|
-| $k=2$ | 0.1386 | 0.1663 | +19.94% |
-| $k=3$ | 0.1365 | 0.1639 | +20.06% |
-| $k=4$ | 0.1407 | 0.1648 | +17.10% |
-| **$k=5$ (Selected)** | **0.1466** | **0.1752** | **+19.50%** |
-| $k=6$ | 0.1543 | 0.1861 | +20.62% |
+| Cluster Count ($k$) | Raw 23-Feature Silhouette Score (23D) | PCA Cluster Silhouette Score (Evaluated in 23D Space) | PCA Component Space Score (11D Space)* | Same-Space Quality Retention (%) |
+|---|---|---|---|---|
+| $k=2$ | 0.1386 | 0.1393 | 0.1663 | +0.46% |
+| $k=3$ | 0.1365 | 0.1356 | 0.1639 | -0.66% |
+| $k=4$ | 0.1407 | 0.1339 | 0.1648 | -4.83% |
+| **$k=5$ (Selected)** | **0.1466** | **0.1431** | **0.1752** | **-2.34%** |
+| $k=6$ | 0.1543 | 0.1508 | 0.1861 | -2.31% |
 
-### 🔍 Cluster Count Selection Rationale ($k=5$ vs $k=6$)
-Although $k=6$ scores slightly higher in Silhouette Score ($0.1861$ vs $0.1752$), cluster profiling reveals that $k=6$ redundantly splits the *Loyal High-Spenders* persona into two near-identical clusters with identical monetary (~₹10,250 vs ₹10,760) and frequency (~2.3 vs 2.4) traits. **$k=5$ was chosen as the optimal parsimonious solution**, yielding 5 distinct, mutually exclusive personas with clear, non-overlapping business strategies.
+*\*Note: Comparing silhouette scores calculated across different dimensional spaces (11D vs 23D) is mathematically invalid due to distance metric scaling. Fair evaluation requires evaluating both cluster models in the same 23-dimensional feature space.*
 
-### 💡 Honest Technical Caveat on Silhouette Scores
-The absolute Silhouette Scores (~0.175) fall into the range typical for complex, multi-dimensional customer behavioral data, where customer habits exist on a continuous spectrum rather than hyper-isolated clusters. PCA dimensionality reduction improved cluster separability by **+19.50% over raw features**, providing directionally robust and operationally actionable segment boundaries.
+### 🔍 Cluster Count Selection Rationale ($k=5$)
+$k=5$ was selected based on a combination of quantitative separability retention and business parsimony. While higher $k$ ($k=6, 7$) slightly increases raw silhouette score, profiling reveals that $k \ge 6$ redundantly splits the *Loyal High-Spenders* persona into two near-identical sub-clusters with overlapping monetary (~₹10,250 vs ₹10,760) and frequency (~2.3 vs 2.4) traits. **$k=5$ provides the optimal parsimonious segmentation**, yielding 5 distinct, mutually exclusive personas with clear, non-overlapping operational strategies.
+
+### 💡 Honest Technical Finding: PCA Dimensionality Reduction Efficiency
+Evaluating PCA cluster assignments back in the original 23-dimensional feature space yields a Silhouette Score of **0.1431 vs 0.1466** for raw 23D KMeans—a negligible difference of **-2.34%**. This proves that compressing 23 correlated features into 11 principal components retains **97.66% of cluster separability** while achieving a **52% reduction in feature dimensionality**, making persona interpretation significantly simpler and more robust without sacrificing segment boundaries.
 
 ---
 
