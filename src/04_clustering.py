@@ -54,19 +54,21 @@ def run_clustering_analysis(scaled_path, pca_path, raw_features_path, output_dir
         # 2. KMeans on 11 PCs (83.34% Variance)
         km_pca = KMeans(n_clusters=k, random_state=42, n_init=10)
         labels_pca = km_pca.fit_predict(X_pca_11)
-        sil_pca = silhouette_score(X_pca_11, labels_pca, sample_size=5000, random_state=42)
+        sil_pca_11d = silhouette_score(X_pca_11, labels_pca, sample_size=5000, random_state=42)
+        # Same-space evaluation: evaluate PCA cluster labels back on the original 23D scaled space
+        sil_pca_23d = silhouette_score(X_scaled, labels_pca, sample_size=5000, random_state=42)
         
         metrics['k'].append(k)
         metrics['raw_inertia'].append(km_raw.inertia_)
         metrics['raw_silhouette'].append(sil_raw)
         metrics['pca11_inertia'].append(km_pca.inertia_)
-        metrics['pca11_silhouette'].append(sil_pca)
+        metrics['pca11_silhouette'].append(sil_pca_23d)  # Same-space evaluation
         
-        pct_diff = ((sil_pca - sil_raw) / sil_raw) * 100
-        print(f"k={k:2d} | Raw Sil: {sil_raw:.4f} | PCA-11 Sil: {sil_pca:.4f} | Silhouette Improvement: {pct_diff:+.2f}%")
+        pct_diff = ((sil_pca_23d - sil_raw) / sil_raw) * 100
+        print(f"k={k:2d} | Raw 23D Sil: {sil_raw:.4f} | PCA Cluster in 23D Sil: {sil_pca_23d:.4f} (11D Space Sil: {sil_pca_11d:.4f}) | Same-Space Retention: {pct_diff:+.2f}%")
         
     metrics_df = pd.DataFrame(metrics)
-    metrics_df['silhouette_improvement_pct'] = ((metrics_df['pca11_silhouette'] - metrics_df['raw_silhouette']) / metrics_df['raw_silhouette']) * 100
+    metrics_df['silhouette_diff_pct'] = ((metrics_df['pca11_silhouette'] - metrics_df['raw_silhouette']) / metrics_df['raw_silhouette']) * 100
     
     # Save comparison metrics CSV
     comp_csv_path = os.path.join(output_dir, 'cluster_comparison_metrics.csv')
@@ -89,14 +91,14 @@ def run_clustering_analysis(scaled_path, pca_path, raw_features_path, output_dir
 
     # Plot 2: Silhouette Score Comparison
     ax2.plot(metrics_df['k'], metrics_df['raw_silhouette'], marker='o', linewidth=2, color='tab:red', label='Raw Features (23 dims)')
-    ax2.plot(metrics_df['k'], metrics_df['pca11_silhouette'], marker='s', linewidth=2, color='tab:green', label='PCA Reduced (11 PCs)')
-    ax2.set_title('Cluster Separability: Silhouette Score Comparison', fontsize=12, fontweight='bold')
+    ax2.plot(metrics_df['k'], metrics_df['pca11_silhouette'], marker='s', linewidth=2, color='tab:green', label='PCA Cluster Labels (Evaluated in 23D)')
+    ax2.set_title('Same-Space Cluster Separability (23D Space)', fontsize=12, fontweight='bold')
     ax2.set_xlabel('Number of Clusters (k)', fontsize=11, fontweight='bold')
-    ax2.set_ylabel('Mean Silhouette Score', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Mean Silhouette Score (23D Feature Space)', fontsize=11, fontweight='bold')
     ax2.legend()
     ax2.grid(True, linestyle='--', alpha=0.5)
 
-    plt.suptitle('KMeans Evaluation: PCA-Reduced (11 PCs, 83.3% Var) vs Raw 23 Features', fontsize=14, fontweight='bold', y=1.02)
+    plt.suptitle('KMeans Evaluation: PCA-Reduced (11 PCs, 83.3% Var) vs Raw 23 Features (Same-Space Evaluated)', fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
     
     plot_path = os.path.join(output_dir, 'cluster_evaluation_elbow_silhouette.png')
@@ -127,15 +129,15 @@ def run_clustering_analysis(scaled_path, pca_path, raw_features_path, output_dir
     # Report quantified result
     raw_s5 = metrics_df.loc[metrics_df['k'] == chosen_k, 'raw_silhouette'].values[0]
     pca_s5 = metrics_df.loc[metrics_df['k'] == chosen_k, 'pca11_silhouette'].values[0]
-    imp_s5 = metrics_df.loc[metrics_df['k'] == chosen_k, 'silhouette_improvement_pct'].values[0]
+    imp_s5 = metrics_df.loc[metrics_df['k'] == chosen_k, 'silhouette_diff_pct'].values[0]
     
     print("\n" + "="*80)
-    print("STEP 4 QUANTIFIED SILHOUETTE COMPARISON RESULT")
+    print("STEP 4 QUANTIFIED SILHOUETTE COMPARISON RESULT (SAME-SPACE EVALUATION)")
     print("="*80)
     print(f"Chosen Cluster Count (k): {chosen_k} Personas")
-    print(f"Raw 23-Feature Silhouette Score : {raw_s5:.4f}")
-    print(f"11-Component PCA Silhouette Score: {pca_s5:.4f}")
-    print(f"Quantified Separability Improvement: {imp_s5:+.2f}%")
+    print(f"Raw 23-Feature Silhouette Score (23D) : {raw_s5:.4f}")
+    print(f"11-PC PCA Cluster Silhouette Score (23D): {pca_s5:.4f}")
+    print(f"Same-Space Cluster Quality Retention   : {imp_s5:+.2f}%")
     print("="*80 + "\n")
 
     return metrics_df, chosen_k, raw_features_df
